@@ -1,0 +1,36 @@
+<head>
+  <title>animate-animate-gif</title>
+</head>
+
+<body>
+    {{> toggles}}
+    {{> viewer}}
+</body>
+
+<template name="toggles">
+    <p id="toggles">
+        <span id="images">
+            {{#each images}}
+            <a href="#">{{name}}</a>
+            {{/each}}
+        </span>
+        <span id="sizes">
+            {{#each sizes}}
+            <a href="#">{{name}}</a>
+            {{/each}}
+        </span>
+    </p>
+</div>
+</template>
+
+<template name="viewer">
+    <div id="viewer-wrapper">
+        <div id="viewer">
+            {{#if images}}
+            {{#each images}}
+            <div class="hoverable"><img src="{{src}}"></div>
+            {{/each}}
+            {{/if}}
+        </div>
+    </div>
+</template>

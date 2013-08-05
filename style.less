@@ -1,0 +1,55 @@
+
+body {
+    font: 300 24px/36px "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+#toggles {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    z-index: 2;
+
+    a {
+        color: #fff;
+        text-shadow: 1px 1px 1px rgba(0, 0, 0, .25);
+    }
+}
+
+#viewer-wrapper {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#viewer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+
+    .hoverable {
+        float: left;
+        position: relative;
+        width: 100% / 10;
+        height: 100% / 10;
+        overflow: hidden;
+    }
+
+    canvas,
+    img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.num-cols(@num-columns) {
+    width: 100% / @num-columns;
+    height: 100% / @num-columns;
+}
+
+body.small #viewer .hoverable { .num-cols(10); }
+body.medium #viewer .hoverable { .num-cols(20); }
+body.large #viewer .hoverable { .num-cols(40); }
