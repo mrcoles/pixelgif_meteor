@@ -135,24 +135,79 @@ if (Meteor.isClient) {
     Template.viewer.events({
         'click .hoverable': _draw(function(e) {
             $(e.target).closest('.hoverable').trigger('toggle.stopgifs');
-        }),
-        'mousedown': _draw(function(e) {
-            e.preventDefault();
-            mouseDown = true;
-        }),
-        'mouseup': _draw(function(e) {
-            mouseDown = false;
-        }),
-        'mousemove': _draw(function(e) {
-            if (mouseDown) {
-                $(e.target).closest('.hoverable').trigger(
-                    e.shiftKey ?
-                        'still.stopgifs' :
-                        'animate.stopgifs'
-                );
-            }
         })
     });
+
+    if ($('html').hasClass('touch')) {
+        var touching = false,
+            eltPositions = [];
+
+        Template.viewer.events({
+            'touchstart': _draw(function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // TODO - use proper meteor doohickeys?
+                eltPositions = $('.hoverable').map(function() {
+                    var $elt = $(this);
+                    return {
+                        $elt: $elt,
+                        offset: $elt.offset(),
+                        width: $elt.width(),
+                        height: $elt.height()
+                    };
+                }).get();
+
+                $(e.target).closest('.hoverable').trigger('animate.stopgifs');
+                touching = true;
+            }),
+            'touchend': _draw(function(e) {
+                touching = false;
+            }),
+            'touchmove': _draw(function(e) {
+                if (touching) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var x = e.pageX,
+                        y = e.pageY,
+                        i = 0,
+                        len = eltPositions.length,
+                        p;
+
+                    // TODO - this doesn't work
+                    console.log('x', x, 'y', y);
+                    for (; i<len; i++) {
+                        p = eltPositions[i];
+                        if ((x > p.offset.left && x < p.offset.left + p.width) &&
+                            (y > p.offset.top && y < p.offset.top + p.height)) {
+                            $(e.target).closest('.hoverable')
+                                .trigger('animate.stopgifs');
+                            break;
+                        }
+                    }
+                }
+            })
+        });
+    } else {
+        Template.viewer.events({
+            'mousedown': _draw(function(e) {
+                e.preventDefault();
+                mouseDown = true;
+            }),
+            'mouseup': _draw(function(e) {
+                mouseDown = false;
+            }),
+            'mousemove': _draw(function(e) {
+                if (mouseDown) {
+                    $(e.target).closest('.hoverable').trigger(
+                        e.shiftKey ?
+                            'still.stopgifs' :
+                            'animate.stopgifs'
+                    );
+                }
+            })
+        });
+    }
 
     Template.viewer.rendered = function() {
         $('#viewer').find('img').stopgifs({hoverAnimate: false});
