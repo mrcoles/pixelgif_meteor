@@ -1,14 +1,32 @@
 
-
-NUM_COLUMNS = 12;
-NUM_ROWS = NUM_COLUMNS;
-
 IMAGE_SRCS = [
     '/car-exchange.gif',
     '/ben-fly.gif'
 ];
 
 if (Meteor.isClient) {
+
+    //
+    // Toggles
+    //
+
+    var ToolType = {
+        draw: true,
+        move: false,
+        set: function(toolType) {
+            if (toolType == 'draw') {
+                this.move = false;
+                this.draw = true;
+            } else if (toolType == 'move') {
+                this.draw = false;
+                this.move = true;
+            } else {
+                return;
+            }
+            Session.set('toolType', toolType);
+        }
+    };
+
     Template.toggles.images = _.map(IMAGE_SRCS, function(x) {
         return {
             src: x,
@@ -40,6 +58,17 @@ if (Meteor.isClient) {
         return x;
     });
 
+    Template.toggles.tools = function() {
+        var toolType = Session.get('toolType');
+
+        return _.map(['move', 'draw'], function(x) {
+            return {
+                name: x,
+                selected: toolType == x
+            };
+        });
+    };
+
     Session.set('animateSize', Template.toggles.sizes[0]);
 
     Template.toggles.events({
@@ -50,8 +79,16 @@ if (Meteor.isClient) {
         'click #sizes>a': function(e) {
             e.preventDefault();
             Session.set('animateSize', this);
+        },
+        'click .tool': function(e) {
+            ToolType.set(this.name);
         }
     });
+
+
+    //
+    // Viewer
+    //
 
     Template.viewer.images = function() {
         var size = Session.get('animateSize');
@@ -64,44 +101,46 @@ if (Meteor.isClient) {
         return null;
     };
 
+
+    function _draw(fn) {
+        return function(e,x) {
+            if (ToolType.draw) {
+                fn.call(this, e, x);
+            }
+        };
+    }
+
+    var mouseDown = false;
+
     Template.viewer.events({
-        'click .hoverable': function(e) {
+        'click .hoverable': _draw(function(e) {
             $(e.target).closest('.hoverable').trigger('toggle.stopgifs');
-        }
+        }),
+        'mousedown': _draw(function(e) {
+            e.preventDefault();
+            mouseDown = true;
+        }),
+        'mouseup': _draw(function(e) {
+            mouseDown = false;
+        }),
+        'mousemove': _draw(function(e) {
+            if (mouseDown) {
+                $(e.target).closest('.hoverable').trigger(
+                    e.shiftKey ?
+                        'still.stopgifs' :
+                        'animate.stopgifs'
+                );
+            }
+        })
     });
 
-    var oldAnimateInterval = null;
-
     Template.viewer.rendered = function() {
-        console.log('rendered!!!!!!!!!!!!'); //REM
-        //$('#viewer').find('img').stopgifs({hoverAnimate: false});
-
-        Meteor.clearInterval(oldAnimateInterval);
+        $('#viewer').find('img').stopgifs({hoverAnimate: false});
 
         var size = Session.get('animateSize');
         $('body').attr('class', '').addClass(size.className);
 
-        var first = true,
-            curIndex = 0,
-            maxIndex = size.columns * size.rows,
-            gap = 20,
-            intervalTime = 100;
-        oldAnimateInterval = Meteor.setInterval(function() {
-            return; //REM
-            $getPixel(curIndex).trigger('toggle.stopgifs');
-            var backIndex = curIndex - gap;
-            if (backIndex < 0 && !first) {
-                backIndex += maxIndex;
-            }
-            if (backIndex >= 0) {
-                $getPixel(backIndex).trigger('toggle.stopgifs');
-            }
-            curIndex++;
-            if (curIndex >= maxIndex) {
-                first = false;
-                curIndex = 0;
-            }
-        }, intervalTime);
+        $('#viewer').scrollZoom(); //REM
     };
 
     function $getPixel(index, y, numColumns) {
@@ -110,7 +149,6 @@ if (Meteor.isClient) {
     }
 
     Meteor.startup(function() {
-
         // load image
         $('<img>', {
             src: IMAGE_SRCS[0],
@@ -133,6 +171,54 @@ if (Meteor.isClient) {
         //             .trigger('toggle.stopgifs');
         //     }
         // });
+
+        //////////////////////////////////////////////
+
+        /* //REM //REM
+        function getStyles() {
+            var $window = $(window);
+            return {
+                width: 110,
+                height: 110,
+                scale: 1,
+                left: -5,
+                top: -5
+            };
+        }
+
+        function percent(x) {
+            return x + '%';
+        }
+
+        var styles = getStyles();
+
+        function drawStyles() {
+            var $v = $('#viewer');
+            $v.css({
+                width: percent(styles.width * styles.scale),
+                height: percent(styles.height * styles.scale),
+                left: percent(styles.left),
+                top: percent(styles.top)
+            });
+        }
+
+        var WHEEL_RATE = 1.01;
+
+        $(window).on('touchmove touchstart touchend mousedown mousewheel', function(e) {
+            if (e.type == 'mousewheel') {
+                e.preventDefault();
+                e.stopPropagation();
+
+                console.log('[EVT]', e.type);
+                var origE = e.originalEvent;
+                var s1 = styles.scale; //REM
+                styles.scale *= Math.pow(WHEEL_RATE, origE.wheelDelta/120);
+                window._e = e; //REM
+                drawStyles();
+                console.log('drawn!', s1, styles.scale); //REM
+            }
+        });
+        */
     });
 }
 

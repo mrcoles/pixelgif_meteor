@@ -7,8 +7,6 @@
     $.stopgifs = {
         defaults: {
             hoverAnimate: true // enable animate during hover
-            // background (fn or str) fill style for canvas bg during load
-            // parentClosest (str) jquery closest selector for hiding on error
         }
     };
 
@@ -22,61 +20,87 @@
             opts.hoverAnimate = false;
         }
 
-        return this.each(function() {
-            var $img = $(this);
+        // put into groups so loading/setup can be optimized
+        var srcGroups = {};
+        this.hide().each(function() {
+            var src = this.getAttribute('src');
+            if (!srcGroups[src]) {
+                srcGroups[src] = [];
+            }
+            srcGroups[src].push(this);
+        });
 
-            if ($img.data('stopgifsSetup'))
-                return;
+        // handle each group
+        $.each(srcGroups, function(k, imgs) {
+            var $img = $(imgs[0]);
 
-            $img.data('stopgifsSetup', true);
-
-            $img.hide();
-
-            var $parent = $img.parent(),
-                width = opts.width ? opts.width : $parent.width(),
-                height = opts.height ? opts.height : $parent.height(),
-                $canvas = $('<canvas>').insertAfter($img),
-                canvas = $canvas.get(0),
+            var $parent = $(imgs).parent(),
+                stretch = opts.stretch,
+                fit = opts.fit,
+                desiredWidth = opts.width ? opts.width : $parent.width(),
+                desiredHeight = opts.height ? opts.height : $parent.height(),
+                $canvases = $('<canvas>').insertAfter(imgs),
+                canvas = $canvases.get(0),
                 ctx = canvas.getContext('2d'),
                 src = $img.attr('src'),
                 cached = cache[src];
 
             function updateDims(img) {
-                canvas.width = width;
-                canvas.height = height;
-                if (img) {
-                    ctx.clearRect(0, 0, width, height);
-                    ctx.drawImage(img, 0, 0, width, height);
+                console.log('updateDims!', img); //REM
+                console.log('dw', desiredWidth, 'dh', desiredHeight); //REM
+                var finalWidth, finalHeight;
+
+                if (stretch) {
+                    finalWidth = desiredWidth;
+                    finalHeight = desiredHeight;
+                } else if (fit) {
+                    var w = img.width,
+                        h = img.height,
+                        ratioW = desiredWidth / w,
+                        ratioH = desiredHeight / h,
+                        ratio = ratioW < ratioH ? ratioW : ratioH;
+                    finalWidth = w * ratio;
+                    finalHeight = h * ratio;
                 }
+
+                $canvases.each(function() {
+                    // this.width = finalWidth;
+                    // this.height = finalHeight;
+                    // var ctx = this.getContext('2d');
+                    // ctx.clearRect(0, 0, img.width, img.height);
+                    // ctx.drawImage(img, 0, 0, finalWidth, finalHeight);
+
+                    var $c = $('<canvas>'),
+                        c = $c[0],
+                        ctx = c.getContext('2d');
+                    c.width = img.width;
+                    c.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    $(this).replaceWith(c);
+
+                    if (finalWidth || finalHeight) {
+                        c.width = finalWidth;
+                        c.height = finalHeight;
+                    }
+                });
             }
-
-            updateDims();
-
-            if (cached) {
-                height = cached.height;
-                width = cached.width;
-                updateDims(cached.img);
-            } else if (opts.background) {
-                ctx.fillStyle = $.isFunction(opts.background) ?
-                    opts.background() : opts.background;
-                ctx.fillRect(0, 0, width, height);
-            }
-
-            var animating = false;
 
             $parent
                 .on('animate.stopgifs', function() {
-                    animating = true;
-                    $canvas.hide();
-                    $img.show();
+                    var $this = $(this);
+                    $this.find('canvas').hide();
+                    $this.find('img').show();
+                    $this.data('animating', true);
                 })
                 .on('still.stopgifs', function() {
-                    animating = false;
-                    $img.hide();
-                    $canvas.show();
+                    var $this = $(this);
+                    $this.find('img').hide();
+                    $this.find('canvas').show();
+                    $this.data('animating', false);
                 })
                 .on('toggle.stopgifs', function() {
-                    $(this).trigger(animating ?
+                    var $this = $(this);
+                    $this.trigger($this.data('animating') ?
                                     'still.stopgifs' :
                                     'animate.stopgifs');
                 });
@@ -85,39 +109,26 @@
                 $parent.hover(function() {
                     $(this).trigger('animate.stopgifs');
                 }, function() {
-                    //REM/??load();
                     $(this).trigger('still.stopgifs');
                 });
             }
 
-            function load() {
-                // separate function for hoverAnimate
+            if (cached) {
+                updateDims(cached);
+            } else {
                 $('<img>', {
                     src: src,
                     load: function() {
-                        var w = this.width,
-                            h = this.height,
-                            ratioW = width / w,
-                            ratioH = height / h,
-                            ratio = ratioW < ratioH ? ratioW : ratioH;
-                        width = w * ratio;
-                        height = h * ratio;
-                        cache[src] = {
-                            img: this,
-                            width: width,
-                            height: height
-                        };
-                        updateDims(this);
+                        cache[src] = this;
+                        updateDims(cache[src]);
                     },
                     error: function() {
-                        (opts.parentClosest ?
-                         $img.closest(opts.parentClosest) :
-                         $img).hide();
                         console.log('bad image src', src);
                     }
                 });
             }
-            !cached && load();
         });
+
+        return this;
     };
 })(jQuery, this);

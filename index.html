@@ -8,7 +8,7 @@
 </body>
 
 <template name="toggles">
-    <p id="toggles">
+    <div id="toggles">
         <span id="images">
             {{#each images}}
             <a href="#">{{name}}</a>
@@ -19,7 +19,12 @@
             <a href="#">{{name}}</a>
             {{/each}}
         </span>
-    </p>
+
+        <br>
+        {{#each tools}}
+        <a id="{{name}}-tool" class="tool {{#if selected}}selected{{/if}}" href="#" onclick="return false">{{name}} tool</a>
+        {{/each}}
+    </div>
 </div>
 </template>
 
