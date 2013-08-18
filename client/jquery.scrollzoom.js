@@ -2,11 +2,11 @@
 $.scrollZoom = {
     wheelRate: 1.01,
     defaultStyles: {
-        width: 110,
-        height: 110,
+        width: 100,
+        height: 100,
         scale: 1,
-        left: -5,
-        top: -5
+        left: 0,
+        top: 0
     },
     disabled: false
 };
@@ -45,10 +45,7 @@ $.fn.scrollZoom = function(cfg) {
             });
         }
 
-        $.extend(styles, { //REM
-            top: 5, left: 5, width: 90, height: 90
-        });
-        draw(); //REM
+        draw();
 
         $this.on('mousewheel', function(e) {
             e.preventDefault();
@@ -100,7 +97,7 @@ $.fn.scrollZoom = function(cfg) {
             e.preventDefault();
             mouseDown = true;
             lastPos = e.originalEvent;
-            $('body').addClass('grabbing'); // GENERALIZE
+            $('html').addClass('grabbing'); // GENERALIZE
         })).on('mousemove', ifEnabled(function(e) {
             if (mouseDown) {
                 e.preventDefault();
@@ -128,7 +125,7 @@ $.fn.scrollZoom = function(cfg) {
 
         $(window).on('mouseup', function(e) {
             mouseDown = false;
-            $('body').removeClass('grabbing'); // GENERALIZE
+            $('html').removeClass('grabbing'); // GENERALIZE
         });
     });
 };

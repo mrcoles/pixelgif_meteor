@@ -46,8 +46,6 @@
                 cached = cache[src];
 
             function updateDims(img) {
-                console.log('updateDims!', img); //REM
-                console.log('dw', desiredWidth, 'dh', desiredHeight); //REM
                 var finalWidth, finalHeight;
 
                 if (stretch) {

@@ -9,31 +9,40 @@ body {
     left: 5px;
     z-index: 2;
 
-    a {
-        color: #fff;
-        text-shadow: 1px 1px 1px rgba(0, 0, 0, .25);
-        margin-right: 1em;
-    }
-
-    .icon {
-        display: block;
-        margin: 0 0 11px 5px;
-        width: 44px;
-        height: 44px;
-        background: rgba(255,255,255,.4) none no-repeat center center;
-        overflow: hidden;
-        text-indent: 110%;
-        white-space: nowrap;
-        border-radius: 4px;
-
-        &.selected {
-            background-color: rgba(255,255,255,.8);
-        }
-    }
-
-    #move-tool { background-image: url(cursor-hand-40.png); }
-    #draw-tool { background-image: url(pencil-40.png); }
+    /* a { */
+    /*     color: #fff; */
+    /*     text-shadow: 1px 1px 1px rgba(0, 0, 0, .25); */
+    /*     margin-right: 1em; */
+    /* } */
 }
+
+.icon-group {
+    margin-top: 40px;
+    width: 0;
+}
+
+.icon {
+    display: block;
+    margin: 0 0 11px 5px;
+    width: 44px;
+    height: 44px;
+    background: rgba(255,255,255,.4) none no-repeat center center;
+    overflow: hidden;
+    text-indent: -999px;
+    white-space: nowrap;
+    border-radius: 4px;
+
+    &.selected {
+        background-color: rgba(255,255,255,.8);
+    }
+}
+
+#move-tool { background-image: url(cursor-hand-40.png); }
+#draw-tool { background-image: url(pencil-40.png); }
+
+.icon.large { background-image: url(grid-large-40.png); }
+.icon.medium { background-image: url(grid-medium-40.png); }
+.icon.small { background-image: url(grid-small-40.png); }
 
 #viewer-wrapper {
     position: fixed;

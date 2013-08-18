@@ -9,21 +9,24 @@
 
 <template name="toggles">
     <div id="toggles">
-        <span id="images">
+        <span id="images" style="display:none">
             {{#each images}}
             <a href="#">{{name}}</a>
             {{/each}}
         </span>
-        <span id="sizes">
-            {{#each sizes}}
-            <a href="#">{{name}}</a>
-            {{/each}}
-        </span>
 
-        <br>
-        {{#each tools}}
-        <a id="{{name}}-tool" class="icon tool {{#if selected}}selected{{/if}}" href="#" onclick="return false">{{name}} tool</a>
-        {{/each}}
+        <div class="icon-group">
+            {{#each tools}}
+            <a id="{{name}}-tool" class="icon tool {{#if selected}}selected{{/if}}" href="#" onclick="return false">{{name}} tool</a>
+            {{/each}}
+        </div>
+
+        <div id="sizes" class="icon-group">
+            {{#each sizes}}
+            <a class="size icon {{className}} {{#if selected}}selected{{/if}}" href="#">{{name}}</a>
+            {{/each}}
+        </div>
+
     </div>
 </div>
 </template>

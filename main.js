@@ -30,8 +30,34 @@ if (Meteor.isClient) {
             Session.set('toolType', toolType);
         }
     };
-
     ToolType.set('draw');
+
+    var CanvasSize = {
+        size: null,
+        baseSizes: _.map([
+            {name: 'small', columns: 10, rows: 10},
+            {name: 'medium', columns: 20, rows: 20},
+            {name: 'large', columns: 40, rows: 40}
+        ], function(x) {
+            x.className = x.name;
+            return x;
+        }),
+        set: function(size) {
+            var base = CanvasSize.baseSizes,
+                data = null;
+            CanvasSize.size = size;
+            for (var i=0, len=base.length; i<len; i++) {
+                if (base[i].name === size) {
+                    data = base[i];
+                }
+            }
+            if (data != null) {
+                Session.set('canvasSize', data);
+            }
+        }
+    };
+    CanvasSize.set('small');
+
 
     Template.toggles.images = _.map(IMAGE_SRCS, function(x) {
         return {
@@ -43,26 +69,15 @@ if (Meteor.isClient) {
         };
     });
 
-    Template.toggles.sizes = _.map([
-        {
-            name: 'small',
-            columns: 10,
-            rows: 10
-        },
-        {
-            name: 'medium',
-            columns: 20,
-            rows: 20
-        },
-        {
-            name: 'large',
-            columns: 40,
-            rows: 40
-        }
-    ], function(x) {
-        x.className = x.name;
-        return x;
-    });
+    Template.toggles.sizes = function() {
+        var canvasSize = Session.get('canvasSize');
+        var sizes = _.map(CanvasSize.baseSizes, function(x) {
+            return _.extend({
+                selected: (x.className == canvasSize.className)
+            }, x);
+        });
+        return sizes;
+    };
 
     Template.toggles.tools = function() {
         var toolType = Session.get('toolType');
@@ -75,7 +90,6 @@ if (Meteor.isClient) {
         });
     };
 
-    Session.set('animateSize', Template.toggles.sizes[0]);
 
     Template.toggles.events({
         'click #images>a': function(e) {
@@ -84,7 +98,7 @@ if (Meteor.isClient) {
         },
         'click #sizes>a': function(e) {
             e.preventDefault();
-            Session.set('animateSize', this);
+            Session.set('canvasSize', this);
         },
         'click .tool': function(e) {
             ToolType.set(this.name);
@@ -97,7 +111,7 @@ if (Meteor.isClient) {
     //
 
     Template.viewer.images = function() {
-        var size = Session.get('animateSize');
+        var size = Session.get('canvasSize');
         var url = Session.get('animateUrl');
         if (url) {
             return _.map(_.range(size.columns * size.rows), function(x) {
@@ -143,10 +157,17 @@ if (Meteor.isClient) {
     Template.viewer.rendered = function() {
         $('#viewer').find('img').stopgifs({hoverAnimate: false});
 
-        var size = Session.get('animateSize');
+        var size = Session.get('canvasSize');
         $('body').attr('class', '').addClass(size.className);
 
-        $('#viewer').scrollZoom();
+        $('#viewer').scrollZoom({
+            styles: {
+                top: 5,
+                left: 5,
+                width: 90,
+                height: 90
+            }
+        });
     };
 
     function $getPixel(index, y, numColumns) {
@@ -177,54 +198,6 @@ if (Meteor.isClient) {
         //             .trigger('toggle.stopgifs');
         //     }
         // });
-
-        //////////////////////////////////////////////
-
-        /* //REM //REM
-        function getStyles() {
-            var $window = $(window);
-            return {
-                width: 110,
-                height: 110,
-                scale: 1,
-                left: -5,
-                top: -5
-            };
-        }
-
-        function percent(x) {
-            return x + '%';
-        }
-
-        var styles = getStyles();
-
-        function drawStyles() {
-            var $v = $('#viewer');
-            $v.css({
-                width: percent(styles.width * styles.scale),
-                height: percent(styles.height * styles.scale),
-                left: percent(styles.left),
-                top: percent(styles.top)
-            });
-        }
-
-        var WHEEL_RATE = 1.01;
-
-        $(window).on('touchmove touchstart touchend mousedown mousewheel', function(e) {
-            if (e.type == 'mousewheel') {
-                e.preventDefault();
-                e.stopPropagation();
-
-                console.log('[EVT]', e.type);
-                var origE = e.originalEvent;
-                var s1 = styles.scale; //REM
-                styles.scale *= Math.pow(WHEEL_RATE, origE.wheelDelta/120);
-                window._e = e; //REM
-                drawStyles();
-                console.log('drawn!', s1, styles.scale); //REM
-            }
-        });
-        */
     });
 }
 
