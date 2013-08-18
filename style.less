@@ -15,14 +15,20 @@ body {
         margin-right: 1em;
     }
 
-    .tool {
-        display: inline-block;
-        width: 40px;
-        height: 40px;
-        background: #fff none no-repeat center center;
+    .icon {
+        display: block;
+        margin: 0 0 11px 5px;
+        width: 44px;
+        height: 44px;
+        background: rgba(255,255,255,.4) none no-repeat center center;
         overflow: hidden;
         text-indent: 110%;
         white-space: nowrap;
+        border-radius: 4px;
+
+        &.selected {
+            background-color: rgba(255,255,255,.8);
+        }
     }
 
     #move-tool { background-image: url(cursor-hand-40.png); }
@@ -37,14 +43,29 @@ body {
     background: #111;
 }
 
+html.draw-tool #viewer {
+    cursor: url(pencil-cursor.png), auto;
+}
+
+html.move-tool #viewer {
+    cursor: hand;
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+
+html.move-tool.grabbing #viewer {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
+}
+
 #viewer {
     position: relative;
-    width: 110%;
-    height: 110%;
-    /* margin-left: -5%; */
-    /* margin-top: -5%; */
+    width: 100%;
+    height: 100%;
     box-shadow: 0 0 200px rgba(255, 255, 255, .25);
-    border-radius: 100px;
+    //border-radius: 100px;
     overflow: hidden;
 
     .hoverable {

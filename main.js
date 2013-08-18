@@ -14,18 +14,24 @@ if (Meteor.isClient) {
         draw: true,
         move: false,
         set: function(toolType) {
-            if (toolType == 'draw') {
+            if (toolType === 'draw') {
+                $.scrollZoom.disabled = true;
                 this.move = false;
                 this.draw = true;
-            } else if (toolType == 'move') {
+                $('html').removeClass('move-tool').addClass('draw-tool');
+            } else if (toolType === 'move') {
+                $.scrollZoom.disabled = false;
                 this.draw = false;
                 this.move = true;
+                $('html').removeClass('draw-tool').addClass('move-tool');
             } else {
                 return;
             }
             Session.set('toolType', toolType);
         }
     };
+
+    ToolType.set('draw');
 
     Template.toggles.images = _.map(IMAGE_SRCS, function(x) {
         return {
@@ -140,7 +146,7 @@ if (Meteor.isClient) {
         var size = Session.get('animateSize');
         $('body').attr('class', '').addClass(size.className);
 
-        $('#viewer').scrollZoom(); //REM
+        $('#viewer').scrollZoom();
     };
 
     function $getPixel(index, y, numColumns) {

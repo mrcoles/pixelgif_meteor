@@ -7,19 +7,33 @@ $.scrollZoom = {
         scale: 1,
         left: -5,
         top: -5
-    }
+    },
+    disabled: false
 };
 
 
-$.fn.scrollZoom = function() {
+$.fn.scrollZoom = function(cfg) {
+
+    // special commands
+    var disabledKey = 'scrollZoom-disabled';
+    if (typeof cfg === 'string') {
+        if (cfg == 'disable' || cfg == 'enable') {
+            this.data(disabledKey, cfg == 'disable');
+        }
+        return this;
+    }
+
+    // regular use-case
+
     function percent(x) {
         return x + '%';
     }
 
-    return this.each(function(styles) {
-        styles = $.extend({}, $.scrollZoom.defaultStyles, styles);
+    var _styles = cfg && cfg.styles;
 
-        var wheelRate = $.scrollZoom.wheelRate,
+    return this.each(function() {
+        var styles = $.extend({}, $.scrollZoom.defaultStyles, _styles),
+            wheelRate = $.scrollZoom.wheelRate,
             $this = $(this);
 
         function draw() {
@@ -68,12 +82,53 @@ $.fn.scrollZoom = function() {
                 left: nl,
                 top: nt
             });
-
-            window._e = e; //REM
-            //REMconsole.log('wheel', orig.pageX, orig.pageY, 'scale', scaleChange, 'offset', xOffset/width, ol, ot, nl, nt); //REM
-
             draw();
-            //REMconsole.log('drawn!', s1, styles.scale); //REM
+        });
+
+        function ifEnabled(fn) {
+            return function(e,x) {
+                if (!$this.data(disabledKey) && !$.scrollZoom.disabled) {
+                    fn.call(this, e, x);
+                }
+            };
+        }
+
+        var mouseDown = false,
+            lastPos = null;
+
+        $this.on('mousedown', ifEnabled(function(e) {
+            e.preventDefault();
+            mouseDown = true;
+            lastPos = e.originalEvent;
+            $('body').addClass('grabbing'); // GENERALIZE
+        })).on('mousemove', ifEnabled(function(e) {
+            if (mouseDown) {
+                e.preventDefault();
+                var curPos = e.originalEvent,
+                    x0 = lastPos.pageX,
+                    y0 = lastPos.pageY,
+                    x1 = curPos.pageX,
+                    y1 = curPos.pageY,
+                    dx = x1 - x0,
+                    dy = y1 - y0,
+                    width = $this.width(),
+                    height = $this.height(),
+                    scale = styles.scale;
+
+                var nl = styles.left + 100 * (dx / width),
+                    nt = styles.top + 100 * (dy / height);
+
+                styles.left = nl;
+                styles.top = nt;
+                draw();
+
+                lastPos = e.originalEvent;
+            }
+        }));
+
+        $(window).on('mouseup', function(e) {
+            mouseDown = false;
+            $('body').removeClass('grabbing'); // GENERALIZE
         });
     });
 };
