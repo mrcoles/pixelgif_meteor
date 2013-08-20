@@ -190,14 +190,11 @@ if (Meteor.isClient) {
                         len = eltPositions.length,
                         p;
 
-                    // TODO - this doesn't work
-                    console.log('x', x, 'y', y);
                     for (; i<len; i++) {
                         p = eltPositions[i];
                         if ((x > p.offset.left && x < p.offset.left + p.width) &&
                             (y > p.offset.top && y < p.offset.top + p.height)) {
-                            $(e.target).closest('.hoverable')
-                                .trigger('animate.stopgifs');
+                            p.$elt.trigger('animate.stopgifs');
                             break;
                         }
                     }
