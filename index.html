@@ -18,13 +18,13 @@
 
         <div class="icon-group">
             {{#each tools}}
-            <a id="{{name}}-tool" class="icon tool {{#if selected}}selected{{/if}}" href="#" onclick="return false">{{name}} tool</a>
+            <a id="{{name}}-tool" title="{{title}}" class="icon tool {{#if selected}}selected{{/if}}" href="#" onclick="return false">{{name}} tool</a>
             {{/each}}
         </div>
 
         <div id="sizes" class="icon-group">
             {{#each sizes}}
-            <a class="size icon {{className}} {{#if selected}}selected{{/if}}" href="#">{{name}}</a>
+            <a class="size icon {{className}} {{#if selected}}selected{{/if}}" href="#" title="{{title}}">{{name}}</a>
             {{/each}}
         </div>
 

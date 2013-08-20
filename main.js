@@ -28,6 +28,10 @@ if (Meteor.isClient) {
                 return;
             }
             Session.set('toolType', toolType);
+        },
+        charCodes: {
+            V: function() { ToolType.set('move'); },
+            B: function() { ToolType.set('draw'); }
         }
     };
     ToolType.set('draw');
@@ -35,9 +39,9 @@ if (Meteor.isClient) {
     var CanvasSize = {
         size: null,
         baseSizes: _.map([
-            {name: 'small', columns: 10, rows: 10},
-            {name: 'medium', columns: 20, rows: 20},
-            {name: 'large', columns: 40, rows: 40}
+            {name: 'small', columns: 10, rows: 10, title: 'Small Size'},
+            {name: 'medium', columns: 20, rows: 20, title: 'Medium Size'},
+            {name: 'large', columns: 40, rows: 40, title: 'Large Size'}
         ], function(x) {
             x.className = x.name;
             return x;
@@ -82,13 +86,25 @@ if (Meteor.isClient) {
     Template.toggles.tools = function() {
         var toolType = Session.get('toolType');
 
-        return _.map(['move', 'draw'], function(x) {
-            return {
-                name: x,
-                selected: toolType == x
-            };
+        return _.map([
+            {name: 'move', title: 'Move Tool (V)'},
+            {name: 'draw', title: 'Brush tool (B)'}
+        ], function(x) {
+            x.selected = (toolType === x.name);
+            return x;
         });
     };
+
+    Meteor.startup(function() {
+        var charCodes = {};
+        _.each(ToolType.charCodes, function(v, k) {
+            charCodes[k.toUpperCase().charCodeAt(0)] = v;
+        });
+        $(window).on('keyup', function(e) {
+            var fn = charCodes[e.keyCode];
+            fn && fn();
+        });
+    });
 
 
     Template.toggles.events({
