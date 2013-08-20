@@ -52,8 +52,8 @@ $.fn.scrollZoom = function(cfg) {
                 width = $this.width(),
                 height = $this.height(),
                 scale = styles.scale,
-                nl = styles.left + 100 * (dx / width) * scaleMove,
-                nt = styles.top + 100 * (dy / height) * scaleMove;
+                nl = styles.left + 100 * (dx / width) * scale * scaleMove,
+                nt = styles.top + 100 * (dy / height) * scale * scaleMove;
             styles.left = nl;
             styles.top = nt;
         }
