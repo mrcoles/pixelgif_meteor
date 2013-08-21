@@ -6,16 +6,11 @@
 <body>
     {{> toggles}}
     {{> viewer}}
+    {{> images}}
 </body>
 
 <template name="toggles">
     <div id="toggles">
-        <span id="images" style="display:none">
-            {{#each images}}
-            <a href="#">{{name}}</a>
-            {{/each}}
-        </span>
-
         <div class="icon-group">
             {{#each tools}}
             <a id="{{name}}-tool" title="{{title}}" class="icon tool {{#if selected}}selected{{/if}}" href="#" onclick="return false">{{name}} tool</a>
@@ -27,9 +22,32 @@
             <a class="size icon {{className}} {{#if selected}}selected{{/if}}" href="#" title="{{title}}">{{name}}</a>
             {{/each}}
         </div>
-
     </div>
 </div>
+</template>
+
+<template name="images">
+    <div id="images">
+        {{#if prevText}}
+        <a class="prev" href="#" onclick="return false">&laquo; {{prevText}}</a>
+        {{/if}}
+
+        <p class="current">
+            {{>currentImage curImage}}
+        </p>
+
+        {{#if nextText}}
+        <a class="next" href="#" onclick="return false">{{nextText}} &raquo;</a>
+        {{/if}}
+    </div>
+</template>
+
+<template name="currentImage">
+    {{#if permalink}}
+    <a target="_blank" href="{{redditLink permalink}}">{{title}}</a>
+    {{else}}
+    <span>{{title}}</span>
+    {{/if}}
 </template>
 
 <template name="viewer">

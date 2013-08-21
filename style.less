@@ -41,9 +41,55 @@ body {
 #move-tool { background-image: url(cursor-hand-40.png); }
 #draw-tool { background-image: url(pencil-40.png); }
 
-.icon.large { background-image: url(grid-large-40.png); }
-.icon.medium { background-image: url(grid-medium-40.png); }
-.icon.small { background-image: url(grid-small-40.png); }
+.icon.medium { background-image: url(grid-large-40.png); }
+.icon.small { background-image: url(grid-medium-40.png); }
+.icon.tiny { background-image: url(grid-small-40.png); }
+
+////////////////////////////
+
+#images {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+
+    a, span {
+        display: inline-block;
+        font-size: 14px;
+        line-height: 20px;
+        font-weight: bold;
+        color: #fff;
+        text-decoration: none;
+
+        /* display: inline-block; */
+        /* padding: 10px; */
+        /* font-size: 14px; */
+        /* line-height: 20px; */
+        /* border-radius: 30px; */
+        /* color: #111; */
+        /* background: rgba(255, 255, 255, .75); */
+        /* text-decoration: none; */
+    }
+
+    .prev, .next {
+        position: absolute;
+        width: 25%;
+        top: 10px;
+    }
+
+    .prev { left: 5%; text-align: left; }
+    .next { right: 5%; text-align: right; }
+
+    .current {
+        position: relative;
+        width: 40%;
+        margin: 0 auto;
+        text-align: center;
+    }
+}
+
+////////////////////////////
 
 #viewer-wrapper {
     position: fixed;
@@ -101,6 +147,7 @@ html.move-tool.grabbing #viewer {
     height: 100% / @num-columns;
 }
 
-body.small #viewer .hoverable { .num-cols(10); }
-body.medium #viewer .hoverable { .num-cols(20); }
+body.tiny #viewer .hoverable { .num-cols(3); }
+body.small #viewer .hoverable { .num-cols(9); }
+body.medium #viewer .hoverable { .num-cols(27); }
 body.large #viewer .hoverable { .num-cols(40); }

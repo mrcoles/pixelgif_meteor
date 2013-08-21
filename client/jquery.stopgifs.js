@@ -47,6 +47,8 @@
                 finalWidth, finalHeight, finalImg;
 
             function drawCanvas($canvas, img) {
+                // allow canvas to be drawn at image resolution
+                // before inserting
                 var $c = $('<canvas>'),
                     c = $c[0],
                     ctx = c.getContext('2d');
@@ -84,7 +86,14 @@
                     // ctx.clearRect(0, 0, img.width, img.height);
                     // ctx.drawImage(img, 0, 0, finalWidth, finalHeight);
 
-                    drawCanvas($(this), img);
+                    var $this = $(this),
+                        $parent = $this.parent();
+                    drawCanvas($this, img);
+
+                    // HACK - if was triggered back on, then start up...
+                    if ($parent.data('animating')) {
+                        $parent.trigger('animate.stopgifs');
+                    }
 
                     /*
                     var $c = $('<canvas>'),
@@ -115,14 +124,14 @@
                         $img = $this.find('img'),
                         $canvas = $this.find('canvas');
 
+                    $this.data('animating', false);
+
                     if (finalImg) {
                         drawCanvas($canvas, finalImg);
                     } else {
                         $this.find('img').hide();
                         $this.find('canvas').show();
                     }
-
-                    $this.data('animating', false);
                 })
                 .on('toggle.stopgifs', function() {
                     var $this = $(this);

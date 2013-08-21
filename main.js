@@ -40,9 +40,13 @@ if (Meteor.isClient) {
     var CanvasSize = {
         size: null,
         baseSizes: _.map([
-            {name: 'small', columns: 10, rows: 10, title: 'Small Size'},
-            {name: 'medium', columns: 20, rows: 20, title: 'Medium Size'},
-            {name: 'large', columns: 40, rows: 40, title: 'Large Size'}
+            {name: 'tiny', columns: 3, rows: 3, title: 'Small Size'},
+            {name: 'small', columns: 9, rows: 9, title: 'Medium Size'},
+            {name: 'medium', columns: 27, rows: 27, title: 'Large Size'}
+            // {name: 'large', columns: 40, rows: 40, title: 'Large Size'}
+            // {name: 'small', columns: 10, rows: 10, title: 'Small Size'},
+            // {name: 'medium', columns: 20, rows: 20, title: 'Medium Size'},
+            // {name: 'large', columns: 40, rows: 40, title: 'Large Size'}
         ], function(x) {
             x.className = x.name;
             return x;
@@ -61,18 +65,8 @@ if (Meteor.isClient) {
             }
         }
     };
-    CanvasSize.set('small');
+    CanvasSize.set('tiny');
 
-
-    Template.toggles.images = _.map(IMAGE_SRCS, function(x) {
-        return {
-            src: x,
-            name: x
-                .replace(/-+/g, ' ')
-                .replace(/^\//, '')
-                .replace(/\.gif$/, '')
-        };
-    });
 
     Template.toggles.sizes = function() {
         var canvasSize = Session.get('canvasSize');
@@ -109,10 +103,6 @@ if (Meteor.isClient) {
 
 
     Template.toggles.events({
-        'click #images>a': function(e) {
-            e.preventDefault();
-            Session.set('animateUrl', this.src);
-        },
         'click #sizes>a': function(e) {
             e.preventDefault();
             Session.set('canvasSize', this);
@@ -120,6 +110,83 @@ if (Meteor.isClient) {
         'click .tool': function(e) {
             ToolType.set(this.name);
         }
+    });
+
+    //
+    // Web Images
+    //
+
+    function getImages() {
+        var images = Session.get('webImages');
+
+        var first = {
+            title: 'hello',
+            url: '/hello.gif',
+            permalink: null,
+            author: null
+        };
+
+        var list = [first];
+        if (images && images.gifs) {
+            list = _.flatten([list, images.gifs]);
+        }
+
+        return list;
+    }
+
+    //Template.images.webImages = getImages;
+
+    function getText(diff) {
+        return function() {
+            var images = getImages(),
+                index = (Session.get('imagesIndex') || 0) + diff,
+                image = images[index];
+            return image ? image.title : '';
+        };
+    }
+
+    Template.images.prevText = getText(-1);
+    //Template.images.curText = getText(0);
+    Template.images.nextText = getText(1);
+
+    Template.images.curImage = function() {
+        return Session.get('animateUrl');
+    };
+
+    var helpers = {
+        authorLink: function(author) {
+            return 'http://www.reddit.com/user/' + author;
+        },
+        redditLink: function(permalink) {
+            return 'http://www.reddit.com' + permalink;
+        }
+    };
+
+    Template.images.helpers(helpers);
+    Template.currentImage.helpers(helpers);
+
+    Template.images.events({
+        'click .image': function(e) {
+            e.preventDefault();
+            Session.set('animateUrl', this);
+        },
+        'click .next': function(e) {
+            var index = (Session.get('imagesIndex') || 0) + 1,
+                webImages = getImages();
+
+            if (index < webImages.length) {
+                Session.set('imagesIndex', index);
+                Session.set('animateUrl', webImages[index]);
+            }
+        }
+    });
+
+    Meteor.startup(function() {
+        Meteor.call('webImages', function(error, results) {
+            Session.set('webImages', results);
+        });
+
+        Session.set('animateUrl', getImages()[0]);
     });
 
 
@@ -132,7 +199,7 @@ if (Meteor.isClient) {
         var url = Session.get('animateUrl');
         if (url) {
             return _.map(_.range(size.columns * size.rows), function(x) {
-                return {src: url};
+                return {src: url.url};
             });
         }
         return null;
@@ -224,7 +291,10 @@ if (Meteor.isClient) {
     }
 
     Template.viewer.rendered = function() {
-        $('#viewer').find('img').stopgifs({hoverAnimate: false});
+        var $imgs = $('#viewer').find('img');
+
+        $($imgs[Math.ceil($imgs.size()/2)-1]).parent().data('animating', true); // .trigger('animate.stopgifs');
+        $imgs.stopgifs({hoverAnimate: false});
 
         var size = Session.get('canvasSize');
         $('body').attr('class', '').addClass(size.className);
@@ -244,34 +314,43 @@ if (Meteor.isClient) {
         return $('#viewer').find('.hoverable:eq('+index+')');
     }
 
-    Meteor.startup(function() {
-        // load image
-        $('<img>', {
-            src: IMAGE_SRCS[0],
-            load: function() {
-                Session.set('animateUrl', this.src);
-            }
-        });
-
-        // // setup key codes
-        // var codeMap = {};
-        // _.each('Q W E A S D Z X C'.split(' '), function(letter, i) {
-        //     var code = String.charCodeAt(letter);
-        //     codeMap[code] = i;
-        // });
-        // $(window).on('keyup', function(e) {
-        //     var index = codeMap[e.keyCode];
-        //     if (index !== undefined) {
-        //         $('#viewer')
-        //             .find('.hoverable:eq(' + index + ')')
-        //             .trigger('toggle.stopgifs');
-        //     }
-        // });
-    });
+    // Meteor.startup(function() {
+    //     // setup key codes
+    //     var codeMap = {};
+    //     _.each('Q W E A S D Z X C'.split(' '), function(letter, i) {
+    //         var code = String.charCodeAt(letter);
+    //         codeMap[code] = i;
+    //     });
+    //     $(window).on('keyup', function(e) {
+    //         var index = codeMap[e.keyCode];
+    //         if (index !== undefined) {
+    //             $('#viewer')
+    //                 .find('.hoverable:eq(' + index + ')')
+    //                 .trigger('toggle.stopgifs');
+    //         }
+    //     });
+    // });
 }
 
 if (Meteor.isServer) {
     Meteor.startup(function () {
         // code to run on server at startup
+    });
+
+    Meteor.methods({
+        webImages: function() {
+            this.unblock();
+            var resp = Meteor.http.call('GET', 'http://www.reddit.com/r/woahdude.json');
+            var gifs = _.filter(resp.data.data.children, function(x) {
+                return (x.data.link_flair_text == 'gif' &&
+                       !/imgur\.com\/a\//.test(x.data.url));
+            });
+
+            gifs = _.map(gifs, function(x) {
+                return x.data;
+            });
+
+            return {gifs: gifs};
+        }
     });
 }
