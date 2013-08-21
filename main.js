@@ -1,5 +1,6 @@
 
 IMAGE_SRCS = [
+    '/hello.gif',
     '/car-exchange.gif',
     '/ben-fly.gif'
 ];
