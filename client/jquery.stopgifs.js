@@ -43,10 +43,26 @@
                 canvas = $canvases.get(0),
                 ctx = canvas.getContext('2d'),
                 src = $img.attr('src'),
-                cached = cache[src];
+                cached = cache[src],
+                finalWidth, finalHeight, finalImg;
+
+            function drawCanvas($canvas, img) {
+                var $c = $('<canvas>'),
+                    c = $c[0],
+                    ctx = c.getContext('2d');
+                c.width = img.width;
+                c.height = img.height;
+                ctx.drawImage(img, 0, 0);
+                $canvas.replaceWith(c);
+
+                if (finalWidth || finalHeight) {
+                    c.width = finalWidth;
+                    c.height = finalHeight;
+                }
+            }
 
             function updateDims(img) {
-                var finalWidth, finalHeight;
+                finalImg = img;
 
                 if (stretch) {
                     finalWidth = desiredWidth;
@@ -68,6 +84,9 @@
                     // ctx.clearRect(0, 0, img.width, img.height);
                     // ctx.drawImage(img, 0, 0, finalWidth, finalHeight);
 
+                    drawCanvas($(this), img);
+
+                    /*
                     var $c = $('<canvas>'),
                         c = $c[0],
                         ctx = c.getContext('2d');
@@ -80,6 +99,7 @@
                         c.width = finalWidth;
                         c.height = finalHeight;
                     }
+                    */
                 });
             }
 
@@ -91,9 +111,17 @@
                     $this.data('animating', true);
                 })
                 .on('still.stopgifs', function() {
-                    var $this = $(this);
-                    $this.find('img').hide();
-                    $this.find('canvas').show();
+                    var $this = $(this),
+                        $img = $this.find('img'),
+                        $canvas = $this.find('canvas');
+
+                    if (finalImg) {
+                        drawCanvas($canvas, finalImg);
+                    } else {
+                        $this.find('img').hide();
+                        $this.find('canvas').show();
+                    }
+
                     $this.data('animating', false);
                 })
                 .on('toggle.stopgifs', function() {
