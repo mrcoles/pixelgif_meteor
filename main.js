@@ -170,8 +170,9 @@ if (Meteor.isClient) {
             e.preventDefault();
             Session.set('animateUrl', this);
         },
-        'click .next': function(e) {
-            var index = (Session.get('imagesIndex') || 0) + 1,
+        'click .next, click .prev': function(e) {
+            var diff = $(e.target).closest('.prev').size() ? -1 : 1,
+                index = (Session.get('imagesIndex') || 0) + diff,
                 webImages = getImages();
 
             if (index < webImages.length) {
