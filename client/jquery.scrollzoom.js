@@ -151,7 +151,11 @@ $.fn.scrollZoom = function(cfg) {
                         xa: touches[0].pageX, ya: touches[0].pageY,
                         xb: touches[1].pageX, yb: touches[1].pageY
                     };
-                    var firstGest = lastGest;
+                    var $w = $(window);
+                    var firstGest = {
+                        xa: 0, ya: 0,
+                        xb: $w.width(), yb: $w.height()
+                    };
                     var dist = distance(firstGest);
 
                     $this.on('touchmove', function(e) {
