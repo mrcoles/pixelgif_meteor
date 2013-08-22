@@ -57,6 +57,7 @@ body {
     left: 0;
     right: 0;
     height: 40px;
+    z-index: 1;
 
     a, span {
         display: inline-block;
@@ -121,9 +122,21 @@ html.move-tool.grabbing #viewer {
     width: 100%;
     height: 100%;
     box-shadow: 0 0 200px rgba(255, 255, 255, .25);
-    //border-radius: 100px;
     overflow: hidden;
     background: transparent url(ajax-loader.gif) no-repeat center center;
+
+    &:after {
+        content: "daily treats from /r/woahdude…";
+        position: absolute;
+        bottom: 58%;
+        left: 50%;
+        width: 50%;
+        margin-left: -25%;
+        text-align: center;
+        color: #fff;
+        color: rgba(255, 255, 255, .75);
+        font-style: italic;
+    }
 
     .hoverable {
         float: left;
@@ -131,6 +144,7 @@ html.move-tool.grabbing #viewer {
         width: 100% / 10;
         height: 100% / 10;
         overflow: hidden;
+        z-index: 1;
     }
 
     canvas,
