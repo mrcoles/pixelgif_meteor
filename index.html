@@ -29,13 +29,13 @@
 <template name="images">
     <div id="images">
         {{#if prevText}}
-        <a class="prev" href="#" onclick="return false">← {{prevText}}</a>
+        <a class="prev" href="#" onclick="return false">←&nbsp;{{prevText}}</a>
         {{/if}}
 
         {{>currentImage curImage}}
 
         {{#if nextText}}
-        <a class="next" href="#" onclick="return false">{{nextText}} →</a>
+        <a class="next" href="#" onclick="return false">{{nextText}}&nbsp;→</a>
         {{/if}}
     </div>
 </template>
