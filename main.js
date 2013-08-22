@@ -215,8 +215,6 @@ if (Meteor.isClient) {
         };
     }
 
-    var mouseDown = false;
-
     Template.viewer.events({
         'click .hoverable': _draw(function(e) {
             $(e.target).closest('.hoverable').trigger('toggle.stopgifs');
@@ -271,6 +269,8 @@ if (Meteor.isClient) {
             })
         });
     } else {
+        var mouseDown = false;
+
         Template.viewer.events({
             'mousedown': _draw(function(e) {
                 e.preventDefault();

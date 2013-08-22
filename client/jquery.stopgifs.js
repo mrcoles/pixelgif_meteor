@@ -6,7 +6,8 @@
 
     $.stopgifs = {
         defaults: {
-            hoverAnimate: true // enable animate during hover
+            hoverAnimate: true, // enable animate during hover
+            redrawCanvas: false // redraw canvas on each still
         }
     };
 
@@ -80,12 +81,6 @@
                 }
 
                 $canvases.each(function() {
-                    // this.width = finalWidth;
-                    // this.height = finalHeight;
-                    // var ctx = this.getContext('2d');
-                    // ctx.clearRect(0, 0, img.width, img.height);
-                    // ctx.drawImage(img, 0, 0, finalWidth, finalHeight);
-
                     var $this = $(this),
                         $parent = $this.parent();
                     drawCanvas($this, img);
@@ -94,21 +89,6 @@
                     if ($parent.data('animating')) {
                         $parent.trigger('animate.stopgifs');
                     }
-
-                    /*
-                    var $c = $('<canvas>'),
-                        c = $c[0],
-                        ctx = c.getContext('2d');
-                    c.width = img.width;
-                    c.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-                    $(this).replaceWith(c);
-
-                    if (finalWidth || finalHeight) {
-                        c.width = finalWidth;
-                        c.height = finalHeight;
-                    }
-                    */
                 });
             }
 
@@ -126,7 +106,7 @@
 
                     $this.data('animating', false);
 
-                    if (finalImg) {
+                    if (finalImg && opts.redrawCanvas) {
                         drawCanvas($canvas, finalImg);
                     } else {
                         $this.find('img').hide();
