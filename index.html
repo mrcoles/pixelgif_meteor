@@ -29,24 +29,22 @@
 <template name="images">
     <div id="images">
         {{#if prevText}}
-        <a class="prev" href="#" onclick="return false">&laquo; {{prevText}}</a>
+        <a class="prev" href="#" onclick="return false">← {{prevText}}</a>
         {{/if}}
 
-        <p class="current">
-            {{>currentImage curImage}}
-        </p>
+        {{>currentImage curImage}}
 
         {{#if nextText}}
-        <a class="next" href="#" onclick="return false">{{nextText}} &raquo;</a>
+        <a class="next" href="#" onclick="return false">{{nextText}} →</a>
         {{/if}}
     </div>
 </template>
 
 <template name="currentImage">
     {{#if permalink}}
-    <a target="_blank" href="{{redditLink permalink}}">{{title}}</a>
+    <a class="current" target="_blank" href="{{redditLink permalink}}">{{title}}</a>
     {{else}}
-    <span>{{title}}</span>
+    <span class="current">{{title}}</span>
     {{/if}}
 </template>
 
