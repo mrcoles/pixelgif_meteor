@@ -118,23 +118,20 @@ if (Meteor.isClient) {
 
     function getImages() {
         var images = Session.get('webImages');
+        return images ? images.gifs : [];
 
-        var first = {
-            title: 'hello',
-            url: '/hello.gif',
-            permalink: null,
-            author: null
-        };
-
-        var list = [first];
-        if (images && images.gifs) {
-            list = _.flatten([list, images.gifs]);
-        }
-
-        return list;
+        // var first = {
+        //     title: 'hello',
+        //     url: '/hello.gif',
+        //     permalink: null,
+        //     author: null
+        // };
+        // var list = [first];
+        // if (images && images.gifs) {
+        //     list = _.flatten([list, images.gifs]);
+        // }
+        // return list;
     }
-
-    //Template.images.webImages = getImages;
 
     function getText(diff) {
         return function() {
@@ -146,7 +143,6 @@ if (Meteor.isClient) {
     }
 
     Template.images.prevText = getText(-1);
-    //Template.images.curText = getText(0);
     Template.images.nextText = getText(1);
 
     Template.images.curImage = function() {
@@ -185,9 +181,8 @@ if (Meteor.isClient) {
     Meteor.startup(function() {
         Meteor.call('webImages', function(error, results) {
             Session.set('webImages', results);
+            Session.set('animateUrl', getImages()[0]);
         });
-
-        Session.set('animateUrl', getImages()[0]);
     });
 
 
