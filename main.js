@@ -210,10 +210,18 @@ if (Meteor.isClient) {
         };
     }
 
+    var loadedFirstImg = false;
+
     Template.viewer.events({
         'click .hoverable': _draw(function(e) {
             $(e.target).closest('.hoverable').trigger('toggle.stopgifs');
-        })
+        }),
+        'load img': function(e) {
+            if (!loadedFirstImg) {
+                $('html').addClass('loaded');
+                loadedFirstImg = true;
+            }
+        }
     });
 
     if ($('html').hasClass('touch')) {

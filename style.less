@@ -125,19 +125,6 @@ html.move-tool.grabbing #viewer {
     overflow: hidden;
     background: transparent url(ajax-loader.gif) no-repeat center center;
 
-    &:after {
-        content: "daily treats from /r/woahdude…";
-        position: absolute;
-        bottom: 58%;
-        left: 50%;
-        width: 50%;
-        margin-left: -25%;
-        text-align: center;
-        color: #fff;
-        color: rgba(255, 255, 255, .75);
-        font-style: italic;
-    }
-
     .hoverable {
         float: left;
         position: relative;
@@ -156,6 +143,24 @@ html.move-tool.grabbing #viewer {
         height: 100%;
     }
 }
+
+#viewer:after {
+    content: "daily treats from /r/woahdude…";
+    position: absolute;
+    bottom: 58%;
+    left: 50%;
+    width: 50%;
+    margin-left: -25%;
+    text-align: center;
+    color: #fff;
+    color: rgba(255, 255, 255, .75);
+    font-style: italic;
+}
+
+html.loaded #viewer:after {
+    display: none;
+}
+
 
 .num-cols(@num-columns) {
     width: 100% / @num-columns;
