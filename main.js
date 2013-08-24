@@ -350,7 +350,18 @@ if (Meteor.isServer) {
                        !/imgur\.com\/a\//.test(x.data.url));
             });
 
+            var _rImgur = /^https?:\/\/([^\/]*\.)?imgur.com/i,
+                _rSuffix = /\.[^\/]+$/i;
+
             gifs = _.map(gifs, function(x) {
+
+                // extra work to cleanup imgur urls
+                var image = x.data.url;
+                if (_rImgur.test(image) && !_rSuffix.test(image)) {
+                    var t = image.split('/').pop();
+                    x.data.url = 'http://i.imgur.com/' + t + '.gif';
+                }
+
                 return x.data;
             });
 
