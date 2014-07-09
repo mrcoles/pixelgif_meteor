@@ -181,7 +181,8 @@ if (Meteor.isClient) {
     Meteor.startup(function() {
         Meteor.call('webImages', function(error, results) {
             Session.set('webImages', results);
-            Session.set('animateUrl', getImages()[0]);
+            var images = getImages();
+            Session.set('animateUrl', images[0]);
         });
     });
 
@@ -303,13 +304,25 @@ if (Meteor.isClient) {
         var size = Session.get('canvasSize');
         $('body').attr('class', '').addClass(size.className);
 
+        var scrollStyles = {
+            top: 5,
+            left: 5,
+            width: 90,
+            height: 90
+        };
+
+        // if "wide" is a query string parameter
+        if (/(^|&)wide(&|$)/.test(window.location.href.split('?')[1])) {
+            scrollStyles = {
+                top: -20,
+                left: -20,
+                width: 140,
+                height: 140
+            };
+        }
+
         $('#viewer').scrollZoom({
-            styles: {
-                top: 5,
-                left: 5,
-                width: 90,
-                height: 90
-            }
+            styles: scrollStyles
         });
     };
 
@@ -344,28 +357,52 @@ if (Meteor.isServer) {
     Meteor.methods({
         webImages: function() {
             this.unblock();
-            var resp = Meteor.http.call('GET', 'http://www.reddit.com/r/woahdude.json');
-            var gifs = _.filter(resp.data.data.children, function(x) {
-                return (x.data.link_flair_text == 'gif' &&
-                       !/imgur\.com\/a\//.test(x.data.url));
-            });
 
-            var _rImgur = /^https?:\/\/([^\/]*\.)?imgur.com/i,
-                _rSuffix = /\.[^\/]+$/i;
+            var urls = [
+                'http://www.reddit.com/r/perfectLoops.json',
+                'http://www.reddit.com/r/woahdude.json',
+                'http://www.reddit.com/r/gifs.json'
+            ];
 
-            gifs = _.map(gifs, function(x) {
+            var results = [];
 
-                // extra work to cleanup imgur urls
-                var image = x.data.url;
-                if (_rImgur.test(image) && !_rSuffix.test(image)) {
-                    var t = image.split('/').pop();
-                    x.data.url = 'http://i.imgur.com/' + t + '.gif';
+            urls.forEach(function(url) {
+
+                if (results.length > 1) {
+                    return;
                 }
 
-                return x.data;
+                var resp = Meteor.http.call('GET', url);
+                var _rImgur = /^https?:\/\/([^\/]*\.)?imgur.com/i;
+                var _rSuffix = /\.[^\/]+$/i;
+
+                // filter out "bad" posts that aren't gifs
+                var gifs = _.filter(resp.data.data.children, function(x) {
+                    return ((x.data.link_flair_text == 'gif' ||
+                             x.data.subreddit == 'gifs' ||
+                             x.data.subreddit == 'perfectloops'
+                            ) &&
+                            !/imgur\.com\/a\//.test(x.data.url) &&
+                           _rImgur.test(x.data.url));
+                });
+
+                // clean up results
+                gifs = _.map(gifs, function(x) {
+
+                    // extra work to cleanup imgur urls
+                    var image = x.data.url;
+                    if (_rImgur.test(image) && !_rSuffix.test(image)) {
+                        var t = image.split('/').pop();
+                        x.data.url = 'http://i.imgur.com/' + t + '.gif';
+                    }
+
+                    return x.data;
+                });
+
+                results.push.apply(results, gifs);
             });
 
-            return {gifs: gifs};
+            return {gifs: results};
         }
     });
 }
