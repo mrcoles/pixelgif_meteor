@@ -93,7 +93,10 @@
             }
 
             $parent
-                .on('animate.stopgifs', function() {
+                .on('animate.stopgifs', function(e) {
+                    // bug in jquery? bad stuff happens if we don't prevent defaultthis goes through defaults (
+                    // fixed in latest jquery #1486, #12518)
+                    e.preventDefault();
                     var $this = $(this);
                     $this.find('canvas').hide();
                     $this.find('img').show();
